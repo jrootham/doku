@@ -1,3 +1,4 @@
+CC=c99
 CFLAGS=-g -O2 -Wall
 
 doku: picosat.o sudoku.o

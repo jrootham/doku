@@ -140,13 +140,27 @@ void print_result(PicoSAT *p, char *line) {
 }
 
 int
-main() {
+main(int argc, char *argv[]) {
+  char* name = "";
+  char  filename[100];
+  int   count = 1;
+
+  if (argc != 2)
+  {
+    printf("Usage: doku name <puzzle.txt\n");
+    exit(1);
+  } else
+  {
+    name = argv[1];
+  }
+  
   PicoSAT *p = picosat_init();
 
   // These constraints are added with picosat_add(),
   // and they are permanent. They define the rules of
   // Sudoku.
   gen_digit_used_row(p);
+
   gen_digit_used_col(p);
   gen_digit_used_box(p);
   all_diff_cell(p);
@@ -163,6 +177,7 @@ main() {
   char buf[100];
   char *line;
   while ((line = fgets(buf, 99, stdin)) != 0) {
+
     // These constraints are added with picosat_assume(),
     // and picosat clears them after each run. They assert
     // the positive (row, col, digit) literal for each given
@@ -172,6 +187,11 @@ main() {
         picosat_assume(p, i * 9 + (line[i] - '0'));
       }
     }
+
+    sprintf(filename, "%s%d.cnf", name, count++);
+    FILE *file = fopen(filename, "w");
+    picosat_print(p, file);
+    fclose(file);
 
     int result = picosat_sat(p, -1);
     switch (result) {
